@@ -7,7 +7,7 @@
 - Note-name parsing, including sharps and flats across octaves.
 - Bar-length validation rejects bars that do not sum to the time signature.
 - Skeleton extraction and comparison: identical melodies pass, octave shifts pass, a changed strong-beat pitch fails unless it is in the allow-list.
-- MIDI writing: every example builds, writes a readable MIDI file, has the expected tracks, and its drum track uses a single velocity (except the optional final accent).
+- MIDI writing: every example builds, writes a readable MIDI file, has the expected tracks, and its drum track uses a single velocity.
 - Every example passes its own skeleton check.
 
 ## Integration (local, opt-in)
@@ -18,7 +18,7 @@ Rendering is exercised manually because it needs FluidSynth, ffmpeg and a SoundF
 python scripts/render_example.py songbie --soundfont /path/to/neothfont.sf2
 ```
 
-Success means an MP3 of the expected length (within about 3 s of `bars × 4 × 60 / bpm`) appears under `out/`.
+Success means an MP3 appears under `out/` whose length is the MIDI length printed by the script plus at most about 3 s of reverb tail.
 
 ## Human acceptance
 
