@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+dist/
+build/
+*.egg-info/
+
+# Secrets / local config
+.env
+.env.*
+!.env.example
+
+# Large or license-unclear assets: SoundFonts are downloaded locally, never committed
+soundfonts/
+*.sf2
+*.sf3
+*.dls
+
+# Render outputs
+out/
+*.wav
+*.mp3
+*.log
