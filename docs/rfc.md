@@ -17,7 +17,8 @@ An arrangement is plain Python data, so an agent can write one without learning 
 - `song.py`: a small multi-track container that writes a type-1 MIDI file with notes plus controller events (pitch bend, modulation, reverb, pan).
 - `arrange.py`: `Arrangement`, `check()` and the ZUN idiom generators. Trumpet lead doubled an octave up on piano, trumpet scoop + vibrato on long notes, eighth-note root/octave bass, 16th up-down piano arpeggios, block string chords, mechanical drums with constant velocity.
 - `render.py`: FluidSynth → WAV → ffmpeg (trim + loudness normalise) → MP3. Errors from the subprocess are surfaced verbatim.
-- `serve.py`: a tiny listening page that lists every MP3 in an output folder with its description and MIDI link, bound to `0.0.0.0`.
+- `video.py` (optional `video` extra: numpy, Pillow): MP3 → 24-band log-spaced levels (50 Hz–12 kHz, normalised to the clip's 99.5th percentile) → LED-meter frames drawn with Pillow → piped to ffmpeg → 640×360 30 fps H.265 (`hvc1`) + AAC MP4.
+- `serve.py`: a tiny listening page bound to `0.0.0.0`. It lists every MP3 in an output folder with its description, embeds the MP4 when present, and offers download links; files are served with HTTP Range support and confined to the folder.
 
 ## Key decisions
 

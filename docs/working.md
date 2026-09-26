@@ -15,7 +15,15 @@
 - Review fixes: `check()` reports a source/melody bar-count mismatch instead of crashing, rejects non-4/4 meters, and caps `skeleton_allow` at one per four bars; 7th chords now sound their 7th in strings and piano; bass eighths are clipped at segment boundaries; the final bar sustains for its written length; piano fills moved to their own `Piano Fill` channel so they no longer cut the held lead-double note; render trims only trailing silence and always removes the temp WAV; the server reports a busy port instead of a traceback; `render_example.py` gained `--note` and a clean error on failed checks.
 - Validation: 32 unit tests passed offline; rendered `songbie` with NeoTHFont; privacy scan clean.
 
+### 2026-09-26
+
+- Added `video.py` and `scripts/make_videos.py`: EQ-meter MP4 (640×360, H.265/hvc1 + AAC) per MP3, plus `render_example.py --video`; numpy/Pillow live in a new `video` extra, also pulled in by `dev`.
+- Listening page now embeds the video when present and offers MP3/MP4/MIDI download links; the server implements HTTP Range and confines file access to the served folder.
+- Validation: 41 unit tests passed (including a live Range/traversal server test and an x265 end-to-end encode); rendered `songbie --video` with NeoTHFont and checked a frame.
+
 ## Lessons Learned
+
+- iOS Safari will not play `<video>` from a server that ignores Range requests (Python's stock `http.server`); the listening page must answer with 206.
 
 - The musical lessons (skeleton vs. idioms, mechanical drums, SoundFont first) live in `skills/zun_music.md` under "Known pitfalls", because the agent reads that file; do not duplicate them here.
 - `render.resolve_soundfont` checks the RIFF/sfbk header on purpose: a Cloudflare challenge page saved as `.sf2` otherwise makes FluidSynth fail with an unhelpful message.

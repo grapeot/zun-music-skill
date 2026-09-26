@@ -2,8 +2,10 @@
 
     python scripts/render_example.py songbie --soundfont /path/to/neothfont.sf2
     python scripts/render_example.py songbie --midi-only
+    python scripts/render_example.py songbie --video      # also out/songbie.mp4
 
-Writes <out>/<name>.mid, <name>.mp3 and <name>.txt (the description shown on the listening page).
+Writes <out>/<name>.mid, <name>.mp3, <name>.txt (the description shown on the listening page)
+and, with --video, <name>.mp4.
 """
 import argparse
 import importlib.util
@@ -15,6 +17,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from zun_music.arrange import build_song  # noqa: E402
 from zun_music.render import RenderError, render  # noqa: E402
+from zun_music.video import render_video, title_from  # noqa: E402
 
 
 def load_example(name: str):
@@ -36,6 +39,7 @@ def main():
     ap.add_argument("--name", help="output file stem (default: example name)")
     ap.add_argument("--note", help="one-line description for the listening page (default: the arrangement's)")
     ap.add_argument("--midi-only", action="store_true", help="build + check only, no audio")
+    ap.add_argument("--video", action="store_true", help="also write an EQ-meter MP4 (needs the video extra)")
     args = ap.parse_args()
 
     arr = load_example(args.example)
@@ -53,9 +57,12 @@ def main():
         return
     try:
         mp3 = render(mid, out / f"{stem}.mp3", args.soundfont)
+        print(f"mp3:  {mp3}")
+        if args.video:
+            mp4 = render_video(mp3, title=title_from(stem, args.note or arr.description))
+            print(f"mp4:  {mp4}")
     except RenderError as e:
         sys.exit(f"render failed: {e}")
-    print(f"mp3:  {mp3}")
 
 
 if __name__ == "__main__":

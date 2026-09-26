@@ -14,7 +14,7 @@ A built-in check verifies that an arrangement still carries the source melody's 
 ## Requirements
 
 - Python 3.9+
-- [FluidSynth](https://www.fluidsynth.org/) and [ffmpeg](https://ffmpeg.org/) on PATH (only for rendering audio)
+- [FluidSynth](https://www.fluidsynth.org/) and [ffmpeg](https://ffmpeg.org/) on PATH (only for rendering audio; the optional video needs ffmpeg built with libx265)
 - A SoundFont (`.sf2`). The recommended bank is **NeoTHFont**, a community bank aimed at the Roland SC-88Pro / SD-90 sound, listed on [musical-artifacts.com](https://musical-artifacts.com/artifacts/6614). In it, program 56 is "Romantic Tp", the trumpet Touhou fans call the ZUNpet. Any General MIDI bank, such as [GeneralUser GS](https://github.com/mrbumpy409/GeneralUser-GS), works for smoke tests but sounds much less like ZUN.
 
 SoundFonts are not included. The provenance of samples in fan-made banks is often unclear, so check the terms of whichever bank you use before publishing anything rendered with it.
@@ -25,7 +25,7 @@ SoundFonts are not included. The provenance of samples in fan-made banks is ofte
 git clone https://github.com/grapeot/zun-music-skill
 cd zun-music-skill
 uv venv && source .venv/bin/activate      # or: python -m venv .venv && source .venv/bin/activate
-uv pip install -e ".[dev]"                # or: pip install -e ".[dev]"
+uv pip install -e ".[dev]"                # or: pip install -e ".[dev]"  (dev includes the video extra)
 python -m pytest tests/ -v                # offline, no SoundFont needed
 ```
 
@@ -37,7 +37,12 @@ Render the bundled example, the climax phrase of 《送别》 ("Farewell"), whos
 export ZUN_MUSIC_SOUNDFONT=/path/to/neothfont.sf2   # or pass --soundfont
 python scripts/render_example.py songbie
 # -> out/songbie.mid, out/songbie.mp3, out/songbie.txt
+
+python scripts/render_example.py songbie --video   # also out/songbie.mp4
+python scripts/make_videos.py out                  # add videos for any MP3 that lacks one
 ```
+
+The video is a small 640×360 clip with a 24-band LED-style EQ meter and a one-line title. It is encoded as H.265 tagged `hvc1` with AAC audio, so it plays on phones and is easy to share.
 
 Listen from any device on the same network:
 
@@ -46,7 +51,7 @@ python scripts/serve.py out --port 8766
 # prints http://<your LAN address>:8766/
 ```
 
-The page lists every MP3 in the folder with its one-line description and a MIDI download link, and picks up new renders on refresh.
+The page lists every version with its one-line description. It embeds the video when one exists and a plain audio player otherwise, and it offers download links for the MP3, MP4 and MIDI. New renders appear on refresh. The server answers HTTP Range requests, which iOS Safari needs before it will play video.
 
 ## Writing a new arrangement
 
