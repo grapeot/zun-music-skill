@@ -36,7 +36,7 @@ Human:
 
 ## Resources
 
-- Toolkit in `src/zun_music/`. `theory.py` handles note names, chord qualities and the skeleton check. `arrange.py` holds the `Arrangement` dataclass and the idiom generators (trumpet lead doubled an octave up on piano, trumpet scoop and vibrato, root/octave eighth-note bass, 16th-note piano arpeggios, block strings, mechanical drums). `render.py` wraps FluidSynth and ffmpeg. `serve.py` provides the listening page.
+- Toolkit in `src/zun_music/`. `theory.py` handles note names, chord qualities and the skeleton check. `arrange.py` holds the `Arrangement` dataclass and the idiom generators (trumpet lead doubled an octave up on piano, trumpet scoop and vibrato, root/octave eighth-note bass, 16th-note piano arpeggios, block strings, mechanical drums). `render.py` wraps FluidSynth and ffmpeg. `video.py` turns an MP3 into a small EQ-meter MP4 (640×360, H.265/hvc1 + AAC) for sharing. `serve.py` provides the listening page, which embeds the video if there is one and offers download links for every file.
 - `examples/songbie.py` is a complete arrangement that a human accepted after seven rounds. Copy its shape: a `SOURCE` transcription, the arranged `MELODY`, `CHORDS`, and an `ARRANGEMENT` whose module docstring states the melody's provenance.
 - External tools: `fluidsynth` and `ffmpeg` on PATH.
 - A SoundFont, passed with `--soundfont` or `ZUN_MUSIC_SOUNDFONT`. The recommended bank is NeoTHFont (musical-artifacts.com artifact 6614, hosted on MediaFire), in which program 56 is "Romantic Tp", the so-called ZUNpet. General MIDI banks such as GeneralUser GS are fine for smoke tests but hide most of the style.
@@ -68,7 +68,7 @@ These are recommendations, not a fixed sequence, except where noted.
 
 **Iterate by changing one dimension per version.** When the user gives feedback, render a version that changes only that dimension (drums only, SoundFont only, melody only) next to the previous one, so the user can tell which change produced which effect. Name versions `vN_<what changed>` with `--name`, and describe the change in one line with `--note`.
 
-**Deliver where the user can listen.** Serve the output folder with `python scripts/serve.py out --port <free port>`, run as a managed background task. Verify the page by fetching it and checking that the expected version names appear; a `200` status alone is not enough. Then give the user the LAN URL.
+**Deliver where the user can listen and take it away.** Render with `--video` (or run `python scripts/make_videos.py out` afterwards), then serve the output folder with `python scripts/serve.py out --port <free port>` as a managed background task. The page has MP3, MP4 and MIDI download links, so the user can keep or forward any version. Verify the page by fetching it and checking that the expected version names appear; a `200` status alone is not enough. Then give the user the LAN URL.
 
 ## Known pitfalls
 
@@ -82,6 +82,7 @@ These all happened during the reference session.
 | Humanised drums | A standard rock beat with accents and dynamics was "obviously not ZUN" | Use constant-velocity sequencer drums |
 | Blaming the writing when it is the SoundFont | A General MIDI bank made even good writing sound generic | Render with a Touhou-oriented bank before judging an arrangement |
 | SoundFont download returns HTML | musical-artifacts.com sits behind a Cloudflare challenge; both `curl` and automated Chrome received a "Just a moment..." page saved as `.sf2` | `resolve_soundfont` checks the RIFF/sfbk header. Fetch the MediaFire mirror page and extract its `download…` link, or ask the user to download it in a normal browser |
+| Video will not play on the phone | Python's stock `http.server` ignores Range requests, and iOS Safari refuses to play a `<video>` without 206 responses | `serve.py` implements Range; if you swap in another server, check that `curl -H 'Range: bytes=0-15'` returns 206 |
 | Listening server silently gone | A server started with `nohup … &` died when its shell exited, and another process then took the port, so the URL served a different app | Run the server as a tracked background task, pick a free port, and verify the page content |
 
 ## Output specification
@@ -91,5 +92,6 @@ For each version in `out/`:
 - `<name>.mid`: type-1 MIDI with tracks `Lead`, `Lead Double`, `Bass`, `Strings`, `Piano` and `Drums` (channel 10), plus `Piano Fill` when the arrangement has fills.
 - `<name>.mp3`: the rendered audio, trimmed and loudness-normalised to -16 LUFS.
 - `<name>.txt`: one line describing what changed relative to the previous version.
+- `<name>.mp4` (optional, `--video`): the EQ-meter video with the same audio.
 
 Each new arrangement is an `examples/<tune>.py` module exposing `ARRANGEMENT`. Its docstring states the provenance and why the melody is public domain, and the tests check for that.

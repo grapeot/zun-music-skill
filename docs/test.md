@@ -9,6 +9,8 @@
 - Skeleton extraction and comparison: identical melodies pass, octave shifts pass, a changed strong-beat pitch fails unless it is in the allow-list.
 - MIDI writing: every example builds, writes a readable MIDI file, has the expected tracks, and its drum track uses a single velocity.
 - Every example passes its own skeleton check.
+- Video: band levels have the right shape, range and frequency placement; frames have the right size and count; titles are trimmed. An end-to-end encode test runs only where ffmpeg has libx265 and checks for `hevc/hvc1` + `aac`.
+- Server: Range parsing (open, suffix, clamped, unsatisfiable, multi-range ignored), a live 206 response with the right bytes, and 404 for path traversal attempts.
 
 ## Integration (local, opt-in)
 
